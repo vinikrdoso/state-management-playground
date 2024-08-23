@@ -1,16 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { loadCourse } from "./thunks";
 
 interface Course {
-  id: number
+  id: number;
   modules: Array<{
-    id: number
-    title: string
+    id: number;
+    title: string;
     lessons: Array<{
-      id: string
-      title: string
-      duration: string
-    }>
-  }>
+      id: string;
+      title: string;
+      duration: string;
+    }>;
+  }>;
 }
 
 export interface PlayerState {
@@ -23,22 +24,22 @@ const initialState: PlayerState = {
   course: null,
   currentModuleIndex: 0,
   currentLessonIndex: 0,
-}
+};
 
 export const playerSlice = createSlice({
   name: "player",
   initialState,
   reducers: {
-    start: (state, action: PayloadAction<Course>) => {
-      state.course = action.payload
-    },
     play: (state, action: PayloadAction<[number, number]>) => {
       state.currentModuleIndex = action.payload[0];
       state.currentLessonIndex = action.payload[1];
     },
     next: (state) => {
       const nextLessonIndex = state.currentLessonIndex + 1;
-      const nextLesson = state.course?.modules[state.currentModuleIndex].lessons[nextLessonIndex];
+      const nextLesson =
+        state.course?.modules[state.currentModuleIndex].lessons[
+          nextLessonIndex
+        ];
 
       if (nextLesson) {
         state.currentLessonIndex = nextLessonIndex;
@@ -53,8 +54,13 @@ export const playerSlice = createSlice({
       }
     },
   },
+  extraReducers(builder) {
+    builder.addCase(loadCourse.fulfilled, (state, action) => {
+      state.course = action.payload;
+    });
+  },
 });
 
 export const player = playerSlice.reducer;
 
-export const { play, next, start } = playerSlice.actions;
+export const { play, next } = playerSlice.actions;

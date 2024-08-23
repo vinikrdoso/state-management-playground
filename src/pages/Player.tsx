@@ -1,15 +1,13 @@
 import { Header } from "../components/Header";
 import { Video } from "../components/Video";
 import { Module } from "../components/Module";
-import { useAppSelector } from "../store";
+import { useAppDispatch, useAppSelector } from "../store";
 import { useCurrentLesson } from "../store/slices/hooks/currentLesson";
 import { useEffect } from "react";
-import { api } from "../lib/axios";
-import { useDispatch } from "react-redux";
-import { start } from '../store/slices/player'
+import { loadCourse } from "../store/slices/thunks";
 
 export function Player() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const modules = useAppSelector((state) => {
     return state.player.course?.modules;
@@ -18,10 +16,8 @@ export function Player() {
   const { currentLesson } = useCurrentLesson();
 
   useEffect(() => {
-    api.get("/courses/1").then((response) => {
-      dispatch(start(response.data));
-    });
-  }, []);
+    dispatch(loadCourse());
+  }, [dispatch]);
 
   useEffect(() => {
     if (currentLesson) {
@@ -41,16 +37,17 @@ export function Player() {
             <Video />
           </div>
           <aside className="w-80 absolute top-0 bottom-0 right-0 border-l divide-y-2 divide-zinc-900 border-zinc-800 bg-zinc-900 overflow-y-scroll scrollbar scrollbar-thin scrollbar-track-zinc-950 scrollbar-thumb-zinc-800">
-            {modules && modules.map((module, index) => {
-              return (
-                <Module
-                  key={module.id}
-                  moduleIndex={index}
-                  title={module.title}
-                  amountOfLessons={module.lessons.length}
-                />
-              );
-            })}
+            {modules &&
+              modules.map((module, index) => {
+                return (
+                  <Module
+                    key={module.id}
+                    moduleIndex={index}
+                    title={module.title}
+                    amountOfLessons={module.lessons.length}
+                  />
+                );
+              })}
           </aside>
         </main>
       </div>
